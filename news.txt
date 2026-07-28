@@ -1,0 +1,6 @@
+[NEWS]
+date=28.07.2026
+title_ru=Тест системы новостей!
+title_en=Test News System!
+desc_ru=Всем привет! Это самая первая новость для этой новой функции!
+desc_en=Hi everyone! This is the very first update for this new feature!
