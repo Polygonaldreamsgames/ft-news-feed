@@ -9,7 +9,7 @@
 # ==========================================
 
 [NEWS]
-date=28.08.2026
+date=27.08.2026
 type=update
 important=false
 title_ru=Обновление 0.6!
@@ -28,12 +28,12 @@ desc_en=Hello, dear tester! This version has a lot to offer! BUT be prepared for
 
 [NEWS]
 date=29.08.2026
-type=community
-important=true
-title_ru=Внимание!
-title_en=Warning!
-desc_ru=Привет, ты лучший!
-desc_en=Hello, your the best!
+type=general
+important=false
+title_ru=Совет новичкам
+title_en=Advice for beginners
+desc_ru=Привет всем игрокам! Новость для новичков! Обновление 0.6 дополнит обучение для игроков! Вам - новичкам станет проще!
+desc_en=Hello all players! We have some news for new players! Update 0.6 will expand the player tutorial! It'll make things easier for you, the newbies!
 
 # --- Скопируй блок ниже для новой новости ---
 
