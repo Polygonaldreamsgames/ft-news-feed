@@ -1,6 +1,29 @@
+# ==========================================
+# ШПАРГАЛКА ПО НОВОСТЯМ FORGOTTEN TRAILS
+# ==========================================
+# 1. Каждая новость начинается с [NEWS]
+# 2. Обязательно указывай дату в формате ДД.ММ.ГГГГ
+# 3. Типы новостей (type): update, event, community, general
+# 4. Если important=true, новость вылезет в отдельном окне
+# 5. Не ставь пробелы перед знаками '='
+# ==========================================
+
 [NEWS]
 date=28.07.2026
+type=update
+important=true
 title_ru=Тест системы новостей!
 title_en=Test News System!
 desc_ru=Всем привет! Это самая первая новость для этой новой функции!
-desc_en=Hi everyone! This is the very first update for this new feature!
+desc_en=Hi everyone! This is the very first update for this new feature! 
+
+# --- Скопируй блок ниже для новой новости ---
+
+# [NEWS]
+# date=ДД.ММ.ГГГГ
+# type=update
+# important=false
+# title_ru=Заголовок на русском
+# title_en=Title in English
+# desc_ru=Описание новости на русском языке.
+# desc_en=News description in English.
