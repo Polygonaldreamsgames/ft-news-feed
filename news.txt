@@ -9,13 +9,22 @@
 # ==========================================
 
 [NEWS]
-date=28.07.2026
+date=29.07.2026
 type=update
-important=true
+important=false
 title_ru=Тест системы новостей!
 title_en=Test News System!
 desc_ru=Всем привет! Это самая первая новость для этой новой функции!
 desc_en=Hi everyone! This is the very first update for this new feature! 
+
+[NEWS]
+date=01.08.2026
+type=update
+important=true
+title_ru=Обновление 0.6!
+title_en=Update 0.6
+desc_ru=Всем привет! Новое глобальное обновление выйдет совсем скоро! Будет ОЧЕНЬ много всего интересного! От системы ветра, до полной переработки ИИ животных! Ожидайте!
+desc_en=Hey everyone! A new global update is coming very soon! There's SO much exciting stuff coming! From the wind system to a complete overhaul of animal AI! Stay tuned!
 
 # --- Скопируй блок ниже для новой новости ---
 
