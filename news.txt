@@ -35,6 +35,15 @@ title_en=Beta version 0.6
 desc_ru=Привет, дорогой тестер! В этой версии тебя ждёт очень много всего! НО будь готов к багам, например ИИ может вести себя нестабильно! Наслаждайся!
 desc_en=Hello, dear tester! This version has a lot to offer! BUT be prepared for bugs, like the AI ​​being a bit unstable! Enjoy!
 
+[NEWS]
+date=29.08.2026
+type=community
+important=false
+title_ru=Обращение!
+title_en=Appeal!
+desc_ru=Привет, дорогой тестер! Это обращение для тебя! Скидывай ВСЕ баги разработчику в телеграмм! Приятной игры!
+desc_en=Hello, dear tester! This message is for you! Send ALL your bugs to the developer via Telegram! Enjoy the game!
+
 # --- Скопируй блок ниже для новой новости ---
 
 # [NEWS]
