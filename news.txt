@@ -9,16 +9,7 @@
 # ==========================================
 
 [NEWS]
-date=29.07.2026
-type=update
-important=false
-title_ru=Тест системы новостей!
-title_en=Test News System!
-desc_ru=Всем привет! Это самая первая новость для этой новой функции!
-desc_en=Hi everyone! This is the very first update for this new feature! 
-
-[NEWS]
-date=29.08.2026
+date=28.08.2026
 type=update
 important=false
 title_ru=Обновление 0.6!
@@ -27,7 +18,7 @@ desc_ru=Всем привет! Новое глобальное обновлен�
 desc_en=Hey everyone! A new global update is coming very soon! There's SO much exciting stuff coming! From the wind system to a complete overhaul of animal AI! Stay tuned!
 
 [NEWS]
-date=29.08.2026
+date=28.08.2026
 type=community
 important=true
 title_ru=Бета версия 0.6
@@ -38,11 +29,11 @@ desc_en=Hello, dear tester! This version has a lot to offer! BUT be prepared for
 [NEWS]
 date=29.08.2026
 type=community
-important=false
-title_ru=Обращение!
-title_en=Appeal!
-desc_ru=Привет, дорогой тестер! Это обращение для тебя! Скидывай ВСЕ баги разработчику в телеграмм! Приятной игры!
-desc_en=Hello, dear tester! This message is for you! Send ALL your bugs to the developer via Telegram! Enjoy the game!
+important=true
+title_ru=Внимание!
+title_en=Warning!
+desc_ru=Привет, ты лучший!
+desc_en=Hello, your the best!
 
 # --- Скопируй блок ниже для новой новости ---
 
