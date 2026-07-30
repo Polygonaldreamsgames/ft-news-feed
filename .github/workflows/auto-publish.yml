@@ -27,6 +27,15 @@ jobs:
           echo "=== Папка scripts ==="
           ls -la .github/scripts/
           
+      - name: Configure Git User
+        run: |
+          git config --global user.name "Polygonaldreamsgames"
+          git config --global user.email "polygonaldreamsgames@users.noreply.github.com"
+          
+      - name: Run Publisher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/publish_scheduled.py
       - name: Run Publisher
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
