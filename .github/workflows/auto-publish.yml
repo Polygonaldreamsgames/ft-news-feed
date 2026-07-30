@@ -2,9 +2,9 @@ name: Auto Publish News (Novosibirsk Time)
 
 on:
   schedule:
-    # Запускаем КАЖДУЮ МИНУТУ. GitHub работает по UTC!
+    # Запускаем КАЖДУЮ МИНУТУ по UTC времени
     - cron: '*/5 * * * *'
-  workflow_dispatch: # Кнопка для ручного запуска (для тестов)
+  workflow_dispatch: # Кнопка для ручного запуска
 
 jobs:
   publish:
@@ -12,14 +12,29 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # ✅ Обновил до v4
         
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5  # ✅ Обновил до v5
         with:
           python-version: '3.10'
+          cache: 'pip'
+          
+      - name: Verify file exists
+        run: |
+          echo "Проверяем наличие скрипта..."
+          ls -la .github/scripts/
+          if [ -f ".github/scripts/publish_scheduled.py" ]; then
+            echo "✅ Скрипт найден!"
+          else
+            echo "❌ Скрипт НЕ найден!"
+            exit 1
+          fi
           
       - name: Run Publisher Script
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python .github/scripts/publish_scheduled.py
+        run: |
+          echo "Запускаем скрипт публикации..."
+          python .github/scripts/publish_scheduled.py
+          echo "Скрипт завершен с кодом: $?"
