@@ -5,20 +5,21 @@ import subprocess
 import sys
 import traceback
 
-# ✅ АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ПУТИ
-# Скрипт всегда будет искать файлы относительно САМОГО СЕБЯ
+# ✅ ПРАВИЛЬНОЕ ОПРЕДЕЛЕНИЕ ПУТИ
+# Скрипт лежит в .github/scripts/publish_scheduled.py
+# Нам нужно подняться на 2 уровня вверх: scripts -> .github -> КОРЕНЬ
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(SCRIPT_DIR) # Поднимаемся на уровень выше (.github -> корень)
+REPO_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR)) 
 
 JOBS_FILE = os.path.join(REPO_ROOT, "scheduled_jobs.json")
 NEWS_FILE = os.path.join(REPO_ROOT, "news.txt")
 
 def run_git(args):
-    """Выполняет git команду, явно указывая рабочую директорию"""
+    """Выполняет git команду в корне репозитория"""
     try:
         result = subprocess.run(
             ["git"] + args, 
-            cwd=REPO_ROOT, # ✅ Явно указываем, где выполнять git
+            cwd=REPO_ROOT, # Явно указываем корень
             capture_output=True, 
             text=True,
             timeout=30
@@ -41,7 +42,7 @@ def main():
         return
 
     if not os.path.exists(NEWS_FILE):
-        print(f"⚠️ Файл {NEWS_FILE} не найден. Создаем пустой.")
+        print(f"️ Файл {NEWS_FILE} не найден. Создаем пустой.")
         with open(NEWS_FILE, "w", encoding="utf-8") as f:
             f.write("")
 
