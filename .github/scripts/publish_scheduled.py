@@ -5,21 +5,24 @@ import subprocess
 import sys
 import traceback
 
-# ✅ ПРАВИЛЬНОЕ ОПРЕДЕЛЕНИЕ ПУТИ
-# Скрипт лежит в .github/scripts/publish_scheduled.py
-# Нам нужно подняться на 2 уровня вверх: scripts -> .github -> КОРЕНЬ
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR)) 
+# ✅ ЖЕЛЕЗОБЕТОННОЕ ОПРЕДЕЛЕНИЕ ПУТИ
+# Используем переменную GITHUB_WORKSPACE, которую GitHub Actions ВСЕГДА устанавливает в корень репо
+REPO_ROOT = os.environ.get('GITHUB_WORKSPACE', os.getcwd())
 
 JOBS_FILE = os.path.join(REPO_ROOT, "scheduled_jobs.json")
 NEWS_FILE = os.path.join(REPO_ROOT, "news.txt")
+
+print(f"DEBUG: SCRIPT_DIR = {os.path.dirname(os.path.abspath(__file__))}")
+print(f"DEBUG: REPO_ROOT = {REPO_ROOT}")
+print(f"DEBUG: JOBS_FILE = {JOBS_FILE}")
+print(f"DEBUG: NEWS_FILE = {NEWS_FILE}")
 
 def run_git(args):
     """Выполняет git команду в корне репозитория"""
     try:
         result = subprocess.run(
             ["git"] + args, 
-            cwd=REPO_ROOT, # Явно указываем корень
+            cwd=REPO_ROOT, 
             capture_output=True, 
             text=True,
             timeout=30
@@ -30,9 +33,6 @@ def run_git(args):
 
 def main():
     print(f"🚀 Запуск авто-публикации...")
-    print(f"📂 Корень репозитория: {REPO_ROOT}")
-    print(f"📄 Путь к jobs: {JOBS_FILE}")
-    print(f"📄 Путь к news: {NEWS_FILE}")
     
     # Проверяем существование файлов
     if not os.path.exists(JOBS_FILE):
@@ -42,7 +42,7 @@ def main():
         return
 
     if not os.path.exists(NEWS_FILE):
-        print(f"️ Файл {NEWS_FILE} не найден. Создаем пустой.")
+        print(f"⚠️ Файл {NEWS_FILE} не найден. Создаем пустой.")
         with open(NEWS_FILE, "w", encoding="utf-8") as f:
             f.write("")
 
@@ -60,7 +60,7 @@ def main():
     published_any = False
     jobs_to_keep = {}
 
-    for job_id, job_data in list(jobs.items()): # list() чтобы можно было удалять во время цикла
+    for job_id, job_data in list(jobs.items()):
         try:
             run_date = datetime.datetime.strptime(job_data['run_date'], "%d.%m.%Y %H:%M")
             
@@ -75,13 +75,11 @@ def main():
                     f"desc_ru={data['desc_ru']}\ndesc_en={data['desc_en']}\n\n"
                 )
                 
-                # Читаем старый контент
                 old_content = ""
                 if os.path.exists(NEWS_FILE):
                     with open(NEWS_FILE, "r", encoding="utf-8") as f:
                         old_content = f.read()
                         
-                # Пишем новый + старый
                 with open(NEWS_FILE, "w", encoding="utf-8") as f:
                     f.write(new_block + old_content)
                 
@@ -90,7 +88,7 @@ def main():
                 jobs_to_keep[job_id] = job_data
                 
         except Exception as e:
-            print(f"⚠️ Ошибка задачи {job_id}: {e}")
+            print(f"️ Ошибка задачи {job_id}: {e}")
             jobs_to_keep[job_id] = job_data
 
     # Коммит и пуш
@@ -99,7 +97,7 @@ def main():
         
         success, out, err = run_git(["add", NEWS_FILE, JOBS_FILE])
         if not success:
-            print(f" Git add error: {err}"); return
+            print(f"❌ Git add error: {err}"); return
             
         success, out, err = run_git(["commit", "-m", "Auto-publish: Scheduled news"])
         if not success:
@@ -120,7 +118,7 @@ def main():
             else:
                 print(f"❌ Remote set-url error: {err}")
         else:
-            print("️ Нет токена или имени репо, пропускаю пуш")
+            print("⚠️ Нет токена или имени репо, пропускаю пуш")
     else:
         print("\n⏸️ Нет новостей для публикации")
     
