@@ -1,40 +1,33 @@
-name: Auto Publish News (Novosibirsk Time)
+name: Auto Publish News V2
 
 on:
   schedule:
-    # Запускаем КАЖДУЮ МИНУТУ по UTC времени
     - cron: '*/5 * * * *'
-  workflow_dispatch: # Кнопка для ручного запуска
+  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  # ✅ Обновил до v4
+      - name: Checkout
+        uses: actions/checkout@v4
         
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v5  # ✅ Обновил до v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
           
-      - name: Verify file exists
+      - name: Debug - List files
         run: |
-          echo "Проверяем наличие скрипта..."
+          echo "=== Список файлов ==="
+          ls -la
+          echo "=== Папка .github ==="
+          ls -la .github/
+          echo "=== Папка scripts ==="
           ls -la .github/scripts/
-          if [ -f ".github/scripts/publish_scheduled.py" ]; then
-            echo "✅ Скрипт найден!"
-          else
-            echo "❌ Скрипт НЕ найден!"
-            exit 1
-          fi
           
-      - name: Run Publisher Script
+      - name: Run Publisher
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Запускаем скрипт публикации..."
-          python .github/scripts/publish_scheduled.py
-          echo "Скрипт завершен с кодом: $?"
+        run: python .github/scripts/publish_scheduled.py
