@@ -5,20 +5,33 @@ import subprocess
 import sys
 import traceback
 
-# ✅ ЖЕЛЕЗОБЕТОННОЕ ОПРЕДЕЛЕНИЕ ПУТИ
-# Используем переменную GITHUB_WORKSPACE, которую GitHub Actions ВСЕГДА устанавливает в корень репо
-REPO_ROOT = os.environ.get('GITHUB_WORKSPACE', os.getcwd())
+def find_repo_root():
+    """Находит корень репозитория, ища scheduled_jobs.json"""
+    current = os.path.dirname(os.path.abspath(__file__))
+    
+    # Поднимаемся максимум на 5 уровней вверх
+    for _ in range(5):
+        # Проверяем, есть ли здесь scheduled_jobs.json И .git папка
+        if (os.path.exists(os.path.join(current, "scheduled_jobs.json")) and 
+            os.path.isdir(os.path.join(current, ".git"))):
+            return current
+        current = os.path.dirname(current)
+    
+    # Если не нашли — используем GITHUB_WORKSPACE или текущую папку
+    return os.environ.get('GITHUB_WORKSPACE', os.getcwd())
 
+REPO_ROOT = find_repo_root()
 JOBS_FILE = os.path.join(REPO_ROOT, "scheduled_jobs.json")
 NEWS_FILE = os.path.join(REPO_ROOT, "news.txt")
 
-print(f"DEBUG: SCRIPT_DIR = {os.path.dirname(os.path.abspath(__file__))}")
-print(f"DEBUG: REPO_ROOT = {REPO_ROOT}")
-print(f"DEBUG: JOBS_FILE = {JOBS_FILE}")
-print(f"DEBUG: NEWS_FILE = {NEWS_FILE}")
+print(f" Поиск корня репозитория...")
+print(f"📂 Найденный корень: {REPO_ROOT}")
+print(f"📄 Путь к jobs: {JOBS_FILE}")
+print(f"📄 Путь к news: {NEWS_FILE}")
+print(f"✅ Файл jobs существует: {os.path.exists(JOBS_FILE)}")
+print(f"✅ Файл news существует: {os.path.exists(NEWS_FILE)}")
 
 def run_git(args):
-    """Выполняет git команду в корне репозитория"""
     try:
         result = subprocess.run(
             ["git"] + args, 
