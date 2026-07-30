@@ -18,22 +18,13 @@ desc_ru=Всем привет! Новое глобальное обновлен�
 desc_en=Hey everyone! A new global update is coming very soon! There's SO much exciting stuff coming! From the wind system to a complete overhaul of animal AI! Stay tuned!
 
 [NEWS]
-date=28.08.2026
-type=community
-important=true
-title_ru=Бета версия 0.6
-title_en=Beta version 0.6
-desc_ru=Привет, дорогой тестер! В этой версии тебя ждёт очень много всего! НО будь готов к багам, например ИИ может вести себя нестабильно! Наслаждайся!
-desc_en=Hello, dear tester! This version has a lot to offer! BUT be prepared for bugs, like the AI ​​being a bit unstable! Enjoy!
-
-[NEWS]
 date=30.08.2026
-type=update
+type=general
 important=false
-title_ru=Новые настройки!
-title_en=New Settings!
-desc_ru=Привет всем игрокам! В обновлении 0.6 появятся новые настройки: разрешение экрана, режим окна, Vsync, ограничение FPS!
-desc_en=Hello all players! Update 0.6 brings new settings: screen resolution, windowed mode, Vsync, and FPS limit!
+title_ru=Статус обновления!
+title_en=Update status!
+desc_ru=Всем привет! Обновление 0.6 почти доделано. Осталось исправить баги ИИ, и настроить переходы между локациями (И сделать новую), процент готовности: 85 процентов!
+desc_en=Hi all! Update 0.6 is almost finished. All that remains is to fix the AI ​​bugs, and set up transitions between locations (And make a new one), the percentage of completion: 85 percent!
 
 # --- Скопируй блок ниже для новой новости ---
 
