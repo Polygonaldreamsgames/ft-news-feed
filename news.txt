@@ -35,6 +35,15 @@ desc_ru=Да
 desc_en=Yes
 
 [NEWS]
+date=31.07.2026
+type=general
+important=false
+title_ru=Тест
+title_en=Test
+desc_ru=Да
+desc_en=Yes
+
+[NEWS]
 date=30.07.2026
 type=general
 important=false
