@@ -36,3 +36,4 @@ desc_en=Hi all! Update 0.6 is almost finished. All that remains is to fix the AI
 # title_en=Title in English
 # desc_ru=Описание новости на русском языке.
 # desc_en=News description in English.
+
