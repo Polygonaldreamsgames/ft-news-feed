@@ -446,35 +446,60 @@ class FTNewsManager:
         self.root.bind("<Control-f>", lambda e: (self.notebook.select(self.tab_list), self.search_var.set(""), self.root.focus_set()) )
 
     def _run_git_cmd(self, args):
+        """Запускает git команду БЕЗ check=True, чтобы ловить ошибки вручную"""
         try:
-            result = subprocess.run(["git"] + args, cwd=REPO_PATH, capture_output=True, text=True, check=True)
-            return True, result.stdout
-        except subprocess.CalledProcessError as e:
-            return False, e.stderr
+            result = subprocess.run(
+                ["git"] + args, 
+                cwd=REPO_PATH, 
+                capture_output=True, 
+                text=True
+                # ✅ УБРАЛИ check=True — теперь сами проверяем returncode
+            )
+            if result.returncode == 0:
+                return True, result.stdout
+            else:
+                return False, result.stderr + "\n" + result.stdout
+        except Exception as e:
+            return False, str(e)
 
     def safe_git_commit_push(self, message):
-        try: current_branch = self.repo.active_branch.name
+        try: 
+            current_branch = self.repo.active_branch.name
         except TypeError:
             messagebox.showwarning("Внимание", "Detached HEAD detected. Возвращаю на main...")
-            self._run_git_cmd(["checkout", "main"]); current_branch = "main"
+            self._run_git_cmd(["checkout", "main"])
+            current_branch = "main"
 
-        success, err = self._run_git_cmd(["add", NEWS_FILE])
-        if not success: messagebox.showerror("Git Error", f"Не удалось добавить файл:\n{err}"); return False
-        success, err = self._run_git_cmd(["commit", "-m", message])
+        # Добавляем ОБА файла
+        success, err = self._run_git_cmd(["add", NEWS_FILE, JOBS_FILE])
+        if not success: 
+            messagebox.showerror("Git Error", f"Не удалось добавить файлы:\n{err}")
+            return False
+
+        # Коммитим
+        success, out_err = self._run_git_cmd(["commit", "-m", message])
         if not success:
-            if "nothing to commit" in err.lower(): return True 
-            messagebox.showerror("Git Error", f"Ошибка коммита:\n{err}"); return False
+            combined = out_err.lower()
+            if "nothing to commit" in combined or "no changes added" in combined:
+                print("ℹ️ Нет изменений для коммита")
+                return True 
+            messagebox.showerror("Git Error", f"Ошибка коммита:\n{out_err}")
+            return False
         
+        # Pull
         self._run_git_cmd(["pull", "--rebase", "-X", "ours"])
         
+        # Пуш
         if self.repo.remotes:
-            success, err = self._run_git_cmd(["push", "origin", current_branch])
+            success, out_err = self._run_git_cmd(["push", "origin", current_branch])
             if not success:
-                if "rejected" in err.lower():
+                if "rejected" in out_err.lower():
                     messagebox.showwarning("Требуется ручное вмешательство", 
-                        "Автоматическое слияние не удалось. Выполните в консоли:\ngit pull --rebase\ngit push")
+                        "Автоматическое слияние не удалось.\nВыполните в консоли:\ngit pull --rebase\ngit push")
                     return False
-                messagebox.showerror("Git Error", f"Ошибка пуша:\n{err}"); return False
+                messagebox.showerror("Git Error", f"Ошибка пуша:\n{out_err}")
+                return False
+                
         return True
 
     def setup_tray_icon(self):
