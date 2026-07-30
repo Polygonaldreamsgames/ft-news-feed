@@ -5,14 +5,20 @@ import subprocess
 import sys
 import traceback
 
-JOBS_FILE = "scheduled_jobs.json"
-NEWS_FILE = "news.txt"
+# ✅ АВТОМАТИЧЕСКОЕ ОПРЕДЕЛЕНИЕ ПУТИ
+# Скрипт всегда будет искать файлы относительно САМОГО СЕБЯ
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(SCRIPT_DIR) # Поднимаемся на уровень выше (.github -> корень)
+
+JOBS_FILE = os.path.join(REPO_ROOT, "scheduled_jobs.json")
+NEWS_FILE = os.path.join(REPO_ROOT, "news.txt")
 
 def run_git(args):
-    """Выполняет git команду на сервере GitHub"""
+    """Выполняет git команду, явно указывая рабочую директорию"""
     try:
         result = subprocess.run(
             ["git"] + args, 
+            cwd=REPO_ROOT, # ✅ Явно указываем, где выполнять git
             capture_output=True, 
             text=True,
             timeout=30
@@ -22,23 +28,30 @@ def run_git(args):
         return False, "", str(e)
 
 def main():
-    print("🚀 Запуск авто-публикации новостей...")
-    print(f"Текущее время UTC: {datetime.datetime.utcnow()}")
+    print(f"🚀 Запуск авто-публикации...")
+    print(f"📂 Корень репозитория: {REPO_ROOT}")
+    print(f"📄 Путь к jobs: {JOBS_FILE}")
+    print(f"📄 Путь к news: {NEWS_FILE}")
     
-    # Проверяем существование файла задач
+    # Проверяем существование файлов
     if not os.path.exists(JOBS_FILE):
-        print(f"️ Файл {JOBS_FILE} не найден. Создаем пустой.")
+        print(f"⚠️ Файл {JOBS_FILE} не найден. Создаем пустой.")
         with open(JOBS_FILE, "w", encoding="utf-8") as f:
             json.dump({}, f)
         return
+
+    if not os.path.exists(NEWS_FILE):
+        print(f"⚠️ Файл {NEWS_FILE} не найден. Создаем пустой.")
+        with open(NEWS_FILE, "w", encoding="utf-8") as f:
+            f.write("")
 
     # Загружаем задачи
     try:
         with open(JOBS_FILE, "r", encoding="utf-8") as f:
             jobs = json.load(f)
-        print(f"📋 Загружено {len(jobs)} запланированных задач")
+        print(f" Загружено {len(jobs)} задач")
     except Exception as e:
-        print(f"❌ Ошибка загрузки {JOBS_FILE}: {e}")
+        print(f"❌ Ошибка загрузки JSON: {e}")
         traceback.print_exc()
         return
 
@@ -46,15 +59,9 @@ def main():
     published_any = False
     jobs_to_keep = {}
 
-    for job_id, job_data in jobs.items():
+    for job_id, job_data in list(jobs.items()): # list() чтобы можно было удалять во время цикла
         try:
-            print(f"\n🔍 Проверка задачи: {job_id}")
-            print(f"   Запланировано на: {job_data['run_date']}")
-            
-            # Парсим время
             run_date = datetime.datetime.strptime(job_data['run_date'], "%d.%m.%Y %H:%M")
-            print(f"   Текущее UTC: {now_utc}")
-            print(f"   Пора публиковать: {run_date <= now_utc}")
             
             if run_date <= now_utc:
                 print(f"✅ ПУБЛИКУЮ: {job_data['data']['title_ru']}")
@@ -67,75 +74,65 @@ def main():
                     f"desc_ru={data['desc_ru']}\ndesc_en={data['desc_en']}\n\n"
                 )
                 
-                # Добавляем новость в начало файла
+                # Читаем старый контент
                 old_content = ""
                 if os.path.exists(NEWS_FILE):
                     with open(NEWS_FILE, "r", encoding="utf-8") as f:
                         old_content = f.read()
-                    print(f"   Прочитано {len(old_content)} символов из {NEWS_FILE}")
-                    
+                        
+                # Пишем новый + старый
                 with open(NEWS_FILE, "w", encoding="utf-8") as f:
                     f.write(new_block + old_content)
-                print(f"   Новость записана в {NEWS_FILE}")
                 
                 published_any = True
             else:
-                # Задача еще не наступила — сохраняем её
                 jobs_to_keep[job_id] = job_data
-                print(f"⏳ Задача еще не наступила, сохраняем")
                 
         except Exception as e:
-            print(f"⚠️ Ошибка обработки задачи {job_id}: {e}")
-            traceback.print_exc()
-            jobs_to_keep[job_id] = job_data # Не теряем задачу при ошибке
+            print(f"⚠️ Ошибка задачи {job_id}: {e}")
+            jobs_to_keep[job_id] = job_data
 
-    # Если опубликовали хотя бы одну новость — коммитим и пушим
+    # Коммит и пуш
     if published_any:
-        print("\n Отправка изменений на GitHub...")
+        print("\n📤 Отправка на GitHub...")
         
         success, out, err = run_git(["add", NEWS_FILE, JOBS_FILE])
         if not success:
-            print(f"❌ Ошибка git add: {err}")
-            return
+            print(f" Git add error: {err}"); return
             
         success, out, err = run_git(["commit", "-m", "Auto-publish: Scheduled news"])
         if not success:
-            print(f"❌ Ошибка git commit: {err}")
-            return
+            print(f"❌ Git commit error: {err}"); return
             
-        # Настраиваем remote с токеном для пуша
         token = os.environ.get('GH_TOKEN')
         repo = os.environ.get('GITHUB_REPOSITORY', '')
-        if not token or not repo:
-            print("❌ Не найдены переменные окружения GH_TOKEN или GITHUB_REPOSITORY")
-            return
-            
-        remote_url = f"https://x-access-token:{token}@github.com/{repo}.git"
         
-        success, out, err = run_git(["remote", "set-url", "origin", remote_url])
-        if not success:
-            print(f"❌ Ошибка настройки remote: {err}")
-            return
-            
-        success, out, err = run_git(["push", "origin", "main"])
-        if success:
-            print("✅ Успешно опубликовано и отправлено на GitHub!")
+        if token and repo:
+            remote_url = f"https://x-access-token:{token}@github.com/{repo}.git"
+            success, out, err = run_git(["remote", "set-url", "origin", remote_url])
+            if success:
+                success, out, err = run_git(["push", "origin", "main"])
+                if success:
+                    print("✅ Успешно опубликовано!")
+                else:
+                    print(f"❌ Push error: {err}")
+            else:
+                print(f"❌ Remote set-url error: {err}")
         else:
-            print(f"❌ Ошибка пуша: {err}")
+            print("️ Нет токена или имени репо, пропускаю пуш")
     else:
         print("\n⏸️ Нет новостей для публикации")
     
-    # Обновляем файл задач (удаляем выполненные)
-    print(f"\n💾 Сохранение оставшихся задач ({len(jobs_to_keep)} шт.)")
+    # Сохраняем оставшиеся задачи
     with open(JOBS_FILE, "w", encoding="utf-8") as f:
         json.dump(jobs_to_keep, f, ensure_ascii=False, indent=2)
         
-    print("\n🎉 Скрипт завершен успешно!")
+    print("\n🎉 Скрипт завершен!")
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"\n💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
+        print(f"\n💥 CRITICAL ERROR: {e}")
         traceback.print_exc()
         sys.exit(1)
