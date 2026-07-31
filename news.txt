@@ -2,73 +2,10 @@
 date=31.07.2026
 type=general
 important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=31.07.2026
-type=general
-important=false
-title_ru=Тест
-title_en=Test
-desc_ru=Да
-desc_en=Yes
-
-[NEWS]
-date=30.07.2026
-type=general
-important=false
-title_ru=Новый инструмент
-title_en=Hi!
-desc_ru=Всем привет! Это тестовая новость, которая написана с помощью моего удобного инструмента на python!
-desc_en=Hello, man!
+title_ru=Приятной игры!
+title_en=Enjoy!
+desc_ru=Привет! Наслаждайся игрой!
+desc_en=Привет! Enjoy!
 
 # ==========================================
 # ШПАРГАЛКА ПО НОВОСТЯМ FORGOTTEN TRAILS
