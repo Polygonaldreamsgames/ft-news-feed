@@ -1,13 +1,5 @@
 
 
-[NEWS]
-date=27.08.2026
-type=update
-important=false
-title_ru=Обновление 0.6!
-title_en=Update 0.6
-desc_ru=Всем привет! Новое глобальное обновление выйдет совсем скоро! Будет ОЧЕНЬ много всего интересного! От системы ветра, до полной переработки ИИ животных! Ожидайте!
-desc_en=Hey everyone! A new global update is coming very soon! There's SO much exciting stuff coming! From the wind system to a complete overhaul of animal AI! Stay tuned!
 
 [NEWS]
 date=30.08.2026
@@ -38,5 +30,6 @@ desc_en=Hi all! Update 0.6 is almost finished. All that remains is to fix the AI
 # 4. Если important=true, новость вылезет в отдельном окне
 # 5. Не ставь пробелы перед знаками '='
 # ==========================================
+
 
 
