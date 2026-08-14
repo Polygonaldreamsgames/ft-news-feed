@@ -7,7 +7,7 @@ import git
 import subprocess
 import threading
 import winreg
-import json  # ✅ ДОБАВЛЕНО: Обязательно для работы с JSON файлами!
+import json
 
 try:
     from PIL import Image, ImageDraw
@@ -23,14 +23,13 @@ REPO_PATH = os.path.dirname(os.path.abspath(__file__))
 NEWS_FILE = "news.txt"
 SETTINGS_FILE = "settings.ini"
 DRAFT_FILE = "draft.txt"
-JOBS_FILE = "scheduled_jobs.json"  # ✅ ДОБАВЛЕНО: Имя файла для запланированных задач
+JOBS_FILE = "scheduled_jobs.json"
 
 class FTNewsManager:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("FT News Manager Pro")
         
-        # ✅ Умный размер окна
         self.root.geometry("600x780")
         self.root.minsize(550, 650)
         self.root.resizable(True, True)
@@ -61,23 +60,83 @@ class FTNewsManager:
         self.scheduler.start()
         
         self.setup_ui()
-        self.setup_hotkeys() 
-        self.restore_draft() 
+        self.setup_hotkeys()
+        self.restore_draft()
+        self.restore_scheduled_jobs()
         self.setup_tray_icon()
         self.check_auto_start()
         self.root.protocol("WM_DELETE_WINDOW", self.minimize_to_tray)
         self.root.mainloop()
+
+    def setup_clipboard_hotkeys(self, widget):
+        widget.bind("<Control-c>", lambda e: self._copy_text(e, widget))
+        widget.bind("<Control-v>", lambda e: self._paste_text(e, widget))
+        widget.bind("<Control-x>", lambda e: self._cut_text(e, widget))
+        widget.bind("<Button-3>", lambda e: self._show_context_menu(e, widget))
+
+    def _copy_text(self, event, widget):
+        try:
+            if isinstance(widget, tk.Text):
+                text = widget.get("sel.first", "sel.last")
+            else:
+                text = widget.selection_get() or widget.get()
+            self.root.clipboard_clear()
+            self.root.clipboard_append(text)
+        except tk.TclError:
+            pass
+        return "break"
+
+    def _paste_text(self, event, widget):
+        try:
+            text = self.root.clipboard_get()
+            if isinstance(widget, tk.Text):
+                widget.insert("insert", text)
+            else:
+                current_text = widget.get()
+                cursor_pos = widget.index(tk.INSERT)
+                new_text = current_text[:cursor_pos] + text + current_text[cursor_pos:]
+                widget.delete(0, tk.END)
+                widget.insert(0, new_text)
+                widget.icursor(cursor_pos + len(text))
+        except tk.TclError:
+            pass
+        return "break"
+
+    def _cut_text(self, event, widget):
+        try:
+            if isinstance(widget, tk.Text):
+                text = widget.get("sel.first", "sel.last")
+                widget.delete("sel.first", "sel.last")
+            else:
+                text = widget.selection_get()
+                if text:
+                    widget.delete(tk.SEL_FIRST, tk.SEL_LAST)
+            self.root.clipboard_clear()
+            self.root.clipboard_append(text)
+        except tk.TclError:
+            pass
+        return "break"
+
+    def _show_context_menu(self, event, widget):
+        menu = tk.Menu(self.root, tearoff=0)
+        menu.add_command(label="Копировать", command=lambda: self._copy_text(None, widget))
+        menu.add_command(label="Вставить", command=lambda: self._paste_text(None, widget))
+        menu.add_command(label="Вырезать", command=lambda: self._cut_text(None, widget))
+        try:
+            menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            menu.grab_release()
 
     def setup_ui(self):
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill="both", expand=True, padx=10, pady=(10, 0))
         
         self.tab_create = tk.Frame(self.notebook, bg=self.colors["bg"])
-        self.notebook.add(self.tab_create, text=" ✏️ Создать ")
+        self.notebook.add(self.tab_create, text=" ️ Создать ")
         self.build_create_tab()
         
         self.tab_list = tk.Frame(self.notebook, bg=self.colors["bg"])
-        self.notebook.add(self.tab_list, text="  Все новости ")
+        self.notebook.add(self.tab_list, text=" 📋 Все новости ")
         self.build_list_tab()
         
         self.tab_settings = tk.Frame(self.notebook, bg=self.colors["bg"])
@@ -92,7 +151,6 @@ class FTNewsManager:
                  highlightthickness=0, showvalue=False, command=lambda v: self.save_scale(v)
         ).pack(side="left", fill="x", expand=True, padx=10)
 
-    # ==================== ВКЛАДКА: СОЗДАТЬ ====================
     def build_create_tab(self):
         container = tk.Frame(self.tab_create, bg=self.colors["frame_bg"], padx=20, pady=20)
         container.pack(fill="both", expand=True, padx=10, pady=10)
@@ -101,12 +159,17 @@ class FTNewsManager:
         row_dt.pack(fill="x", pady=(0, 15))
         tk.Label(row_dt, text="Дата:", bg=self.colors["frame_bg"], fg=self.colors["text_fg"]).pack(side="left")
         self.date_var = tk.StringVar(value=datetime.datetime.now().strftime("%d.%m.%Y"))
-        tk.Entry(row_dt, textvariable=self.date_var, width=14, bg=self.colors["entry_bg"], 
-                 fg=self.colors["text_fg"], relief="flat").pack(side="left", padx=8)
+        date_entry = tk.Entry(row_dt, textvariable=self.date_var, width=14, bg=self.colors["entry_bg"], 
+                 fg=self.colors["text_fg"], relief="flat")
+        date_entry.pack(side="left", padx=8)
+        self.setup_clipboard_hotkeys(date_entry)
+
         tk.Label(row_dt, text="Время:", bg=self.colors["frame_bg"], fg=self.colors["text_fg"]).pack(side="left", padx=(15,0))
         self.time_var = tk.StringVar(value=datetime.datetime.now().strftime("%H:%M"))
-        tk.Entry(row_dt, textvariable=self.time_var, width=10, bg=self.colors["entry_bg"], 
-                 fg=self.colors["text_fg"], relief="flat").pack(side="left", padx=8)
+        time_entry = tk.Entry(row_dt, textvariable=self.time_var, width=10, bg=self.colors["entry_bg"], 
+                 fg=self.colors["text_fg"], relief="flat")
+        time_entry.pack(side="left", padx=8)
+        self.setup_clipboard_hotkeys(time_entry)
 
         row_meta = tk.Frame(container, bg=self.colors["frame_bg"])
         row_meta.pack(fill="x", pady=(0, 15))
@@ -132,20 +195,21 @@ class FTNewsManager:
                 txt = tk.Text(grid_frame, bg=self.colors["entry_bg"], fg=self.colors["text_fg"], 
                               relief="flat", height=3, wrap="word", font=("Segoe UI", 10))
                 txt.grid(row=i, column=1, sticky="ew", pady=8, padx=(10,0))
+                self.setup_clipboard_hotkeys(txt)
                 self.create_fields[key] = txt
             else:
                 ent = tk.Entry(grid_frame, bg=self.colors["entry_bg"], fg=self.colors["text_fg"], 
                                relief="flat", font=("Segoe UI", 10))
                 ent.grid(row=i, column=1, sticky="ew", pady=8, padx=(10,0))
+                self.setup_clipboard_hotkeys(ent)
                 self.create_fields[key] = ent
 
-        btn = tk.Button(self.tab_create, text="🚀 ОПУБЛИКОВАТЬ", command=self.schedule_or_publish, 
+        btn = tk.Button(self.tab_create, text=" ОПУБЛИКОВАТЬ", command=self.schedule_or_publish, 
                         bg=self.colors["accent"], fg="white", font=("Segoe UI", 11, "bold"), height=2, relief="flat")
         btn.pack(fill="x", padx=20, pady=15)
         btn.bind("<Enter>", lambda e: btn.config(bg=self.colors["btn_hover"]))
         btn.bind("<Leave>", lambda e: btn.config(bg=self.colors["accent"]))
 
-    # ==================== ВКЛАДКА: ВСЕ НОВОСТИ ====================
     def build_list_tab(self):
         list_container = tk.Frame(self.tab_list, bg=self.colors["bg"])
         list_container.pack(fill="both", expand=True, padx=10, pady=10)
@@ -160,6 +224,7 @@ class FTNewsManager:
                                 bg=self.colors["entry_bg"], fg=self.colors["text_fg"], relief="flat")
         search_entry.pack(fill="x", padx=5)
         search_entry.bind("<KeyRelease>", lambda e: self.filter_news())
+        self.setup_clipboard_hotkeys(search_entry)
         
         list_inner = tk.Frame(list_container, bg=self.colors["bg"])
         list_inner.pack(fill="both", expand=True)
@@ -186,9 +251,12 @@ class FTNewsManager:
         tk.Label(edit_grid, text="Описание RU:", bg=self.colors["frame_bg"], fg=self.colors["text_fg"]).grid(row=4, column=0, sticky="w", pady=8)
         self.edit_desc_ru = tk.Text(edit_grid, bg=self.colors["entry_bg"], fg=self.colors["text_fg"], relief="flat", height=3, wrap="word")
         self.edit_desc_ru.grid(row=4, column=1, sticky="ew", pady=8, padx=(10,0))
+        self.setup_clipboard_hotkeys(self.edit_desc_ru)
+
         tk.Label(edit_grid, text="Описание EN:", bg=self.colors["frame_bg"], fg=self.colors["text_fg"]).grid(row=5, column=0, sticky="w", pady=8)
         self.edit_desc_en = tk.Text(edit_grid, bg=self.colors["entry_bg"], fg=self.colors["text_fg"], relief="flat", height=3, wrap="word")
         self.edit_desc_en.grid(row=5, column=1, sticky="ew", pady=8, padx=(10,0))
+        self.setup_clipboard_hotkeys(self.edit_desc_en)
         
         self.edit_important = tk.BooleanVar(value=False)
         tk.Checkbutton(self.editor_frame, text="❗ ВАЖНАЯ", variable=self.edit_important, 
@@ -214,13 +282,14 @@ class FTNewsManager:
     def _add_edit_field(self, parent, row, label_text):
         tk.Label(parent, text=label_text+":", bg=self.colors["frame_bg"], fg=self.colors["text_fg"]).grid(row=row, column=0, sticky="w", pady=8)
         ent = tk.Entry(parent, bg=self.colors["entry_bg"], fg=self.colors["text_fg"], relief="flat", font=("Segoe UI", 10))
-        ent.grid(row=row, column=1, sticky="ew", pady=8, padx=(10,0)); return ent
+        ent.grid(row=row, column=1, sticky="ew", pady=8, padx=(10,0))
+        self.setup_clipboard_hotkeys(ent)
+        return ent
 
-    # ==================== ВКЛАДКА: НАСТРОЙКИ ====================
     def build_settings_tab(self):
         container = tk.Frame(self.tab_settings, bg=self.colors["frame_bg"], padx=25, pady=25)
         container.pack(fill="both", expand=True, padx=10, pady=10)
-        tk.Label(container, text="⚙️ НАСТРОЙКИ ПРОГРАММЫ", bg=self.colors["frame_bg"], 
+        tk.Label(container, text="️ НАСТРОЙКИ ПРОГРАММЫ", bg=self.colors["frame_bg"], 
                  fg=self.colors["text_fg"], font=("Segoe UI", 12, "bold")).pack(anchor="w", pady=(0,20))
                  
         self.auto_start_var = tk.BooleanVar(value=self.settings.get("auto_start", "False") == "True")
@@ -231,18 +300,24 @@ class FTNewsManager:
                        
         total = len(getattr(self, 'all_news_data', []))
         important = sum(1 for n in getattr(self, 'all_news_data', []) if n.get('important')=='true')
-        tk.Label(container, text=f"📈 Всего новостей: {total} | Важных: {important}", 
+        scheduled = len(self.scheduler.get_jobs())
+        tk.Label(container, text=f"📈 Всего новостей: {total} | Важных: {important} | Запланировано: {scheduled}", 
                  bg=self.colors["frame_bg"], fg="#8fbc8f", font=("Segoe UI", 10)).pack(anchor="w", pady=(10,0))
                  
         tk.Label(container, text="ℹ️ Планировщик активен и работает в фоне.", 
                  bg=self.colors["frame_bg"], fg="#8fbc8f", font=("Segoe UI", 9)).pack(anchor="w", pady=(20,0))
 
-    # ==================== ЛОГИКА И ФИЧИ ====================
     def refresh_news_list(self):
         self.news_listbox.delete(0, tk.END)
         self.all_news_data = []
+        file_path = os.path.join(REPO_PATH, NEWS_FILE)
+        
+        # ✅ Фикс: проверка существования файла
+        if not os.path.exists(file_path):
+            return
+
         try:
-            with open(os.path.join(REPO_PATH, NEWS_FILE), "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.read().split('\n'); current_news = {}
                 for line in lines:
                     line = line.strip()
@@ -272,26 +347,6 @@ class FTNewsManager:
                 imp = " ❗" if news.get('important') == 'true' else ""
                 self.news_listbox.insert(tk.END, f"[{date}] {news.get('title_ru', 'No Title')}{imp}")
 
-    def load_jobs_from_file(self):
-        """Загружает задачи из JSON файла"""
-        path = os.path.join(REPO_PATH, JOBS_FILE)
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except: return {}
-        return {}
-
-    def save_job_to_file(self, job_id, run_date_utc, data):
-        """Сохраняет задачу в JSON файл ТОЛЬКО с UTC временем"""
-        jobs = self.load_jobs_from_file()
-        jobs[job_id] = {
-            "run_date": run_date_utc.strftime("%d.%m.%Y %H:%M"), 
-            "data": data
-        }
-        with open(os.path.join(REPO_PATH, JOBS_FILE), "w", encoding="utf-8") as f:
-            json.dump(jobs, f, ensure_ascii=False, indent=2)
-
     def on_news_select(self, event):
         selection = self.news_listbox.curselection()
         if not selection: return
@@ -318,7 +373,6 @@ class FTNewsManager:
 
     def save_edited_news(self):
         if not hasattr(self, 'current_edit_index'): return
-        
         current = {
             'date': self.edit_date.get(), 'type': self.edit_type.get(),
             'important': str(self.edit_important.get()).lower(),
@@ -378,37 +432,34 @@ class FTNewsManager:
 
     def schedule_or_publish(self):
         t_ru = self.create_fields['title_ru'].get()
-        if not t_ru: 
-            messagebox.showwarning("Внимание", "Нужен заголовок!"); return
+        if not t_ru: messagebox.showwarning("Внимание", "Нужен заголовок!"); return
         
+        # Сохраняем черновик
+        with open(os.path.join(REPO_PATH, DRAFT_FILE), "w", encoding="utf-8") as f:
+            f.write(f"title_ru={t_ru}\n")
+            f.write(f"title_en={self.create_fields['title_en'].get()}\n")
+            f.write(f"desc_ru={self.create_fields['desc_ru'].get('1.0', 'end-1c')}\n")
+            f.write(f"desc_en={self.create_fields['desc_en'].get('1.0', 'end-1c')}\n")
+            f.write(f"type={self.type_var.get()}\n")
+            f.write(f"date={self.date_var.get()}\n")
+            f.write(f"time={self.time_var.get()}\n")
+
         date_str = self.date_var.get(); time_str = self.time_var.get()
-        
-        try: 
-            local_dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
-            utc_dt = local_dt - datetime.timedelta(hours=7) 
-            
-        except: 
-            messagebox.showerror("Ошибка", "Неверный формат даты/времени"); return
-            
+        try: pub_time = datetime.datetime.strptime(f"{date_str} {time_str}", "%d.%m.%Y %H:%M")
+        except: messagebox.showerror("Ошибка", "Неверный формат даты/времени"); return
         now = datetime.datetime.now()
-        news_data = {
-            "date": date_str, "type": self.type_var.get(), 
-            "important": str(self.important_var.get()).lower(), 
-            "title_ru": t_ru, "title_en": self.create_fields['title_en'].get(), 
-            "desc_ru": self.create_fields['desc_ru'].get('1.0', 'end-1c'), 
-            "desc_en": self.create_fields['desc_en'].get('1.0', 'end-1c')
-        }
-                     
-        job_id = f"news_{int(now.timestamp())}"
+        news_data = {"date": date_str, "type": self.type_var.get(), "important": str(self.important_var.get()).lower(), 
+                     "title_ru": t_ru, "title_en": self.create_fields['title_en'].get(), 
+                     "desc_ru": self.create_fields['desc_ru'].get('1.0', 'end-1c'), 
+                     "desc_en": self.create_fields['desc_en'].get('1.0', 'end-1c')}
         
-        self.save_job_to_file(job_id, utc_dt, news_data)
-        
-        if self.safe_git_commit_push(f"Scheduled news: {t_ru}"):
-            messagebox.showinfo("Запланировано", 
-                f"Новость запланирована на {date_str} {time_str} (Новосибирск)!\n"
-                f"Сервер GitHub опубликует её автоматически, даже если ПК выключен. 🤖")
+        if pub_time <= now: 
+            self.publish_news(news_data)
         else:
-            messagebox.showerror("Ошибка", "Не удалось отправить расписание на GitHub!")
+            job_id = f"news_{int(now.timestamp())}"
+            self.scheduler.add_job(self.publish_news, 'date', run_date=pub_time, args=[news_data], id=job_id)
+            self.save_job_to_file(job_id, pub_time, news_data)
+            messagebox.showinfo("Запланировано", f"Новость выйдет {date_str} в {time_str}!\n(Сохранено и переживет перезапуск)")
 
     def publish_news(self, data):
         new_block = f"[NEWS]\ndate={data['date']}\ntype={data['type']}\nimportant={data['important']}\ntitle_ru={data['title_ru']}\ntitle_en={data['title_en']}\ndesc_ru={data['desc_ru']}\ndesc_en={data['desc_en']}\n\n"
@@ -416,10 +467,30 @@ class FTNewsManager:
         try:
             with open(file_path, "r", encoding="utf-8") as f: old = f.read()
             with open(file_path, "w", encoding="utf-8") as f: f.write(new_block + old)
+            
             if self.safe_git_commit_push(f"News: {data['title_ru']}"):
+                # ✅ Фикс: Удаляем черновик после успешной публикации
+                draft_path = os.path.join(REPO_PATH, DRAFT_FILE)
+                if os.path.exists(draft_path):
+                    os.remove(draft_path)
+                
                 if hasattr(self, 'tray_icon'): self.tray_icon.notify("Forgotten Trails", f"Опубликовано: {data['title_ru']}")
                 self.refresh_news_list()
+                
+                # Очищаем поля ввода после публикации
+                self.clear_create_fields()
+                
+                self.remove_completed_job(data['title_ru'], data['date'])
         except Exception as e: print(f"Ошибка публикации: {e}")
+
+    def clear_create_fields(self):
+        """Очищает поля на вкладке создания"""
+        self.create_fields['title_ru'].delete(0, tk.END)
+        self.create_fields['title_en'].delete(0, tk.END)
+        self.create_fields['desc_ru'].delete("1.0", tk.END)
+        self.create_fields['desc_en'].delete("1.0", tk.END)
+        self.date_var.set(datetime.datetime.now().strftime("%d.%m.%Y"))
+        self.time_var.set(datetime.datetime.now().strftime("%H:%M"))
 
     def restore_draft(self):
         draft_path = os.path.join(REPO_PATH, DRAFT_FILE)
@@ -437,7 +508,69 @@ class FTNewsManager:
                         self.date_var.set(draft.get('date', datetime.datetime.now().strftime("%d.%m.%Y")))
                         self.time_var.set(draft.get('time', datetime.datetime.now().strftime("%H:%M")))
                         self.notebook.select(self.tab_create)
+                    else:
+                        # Если пользователь отказался, удаляем старый битый черновик
+                        os.remove(draft_path)
             except: pass
+
+    def save_job_to_file(self, job_id, run_date, data):
+        jobs = self.load_jobs_from_file()
+        jobs[job_id] = {
+            "run_date": run_date.strftime("%d.%m.%Y %H:%M"),
+            "data": data
+        }
+        with open(os.path.join(REPO_PATH, JOBS_FILE), "w", encoding="utf-8") as f:
+            json.dump(jobs, f, ensure_ascii=False, indent=2)
+
+    def load_jobs_from_file(self):
+        path = os.path.join(REPO_PATH, JOBS_FILE)
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except: return {}
+        return {}
+
+    def remove_completed_job(self, title, date):
+        jobs = self.load_jobs_from_file()
+        keys_to_remove = []
+        for job_id, job_data in jobs.items():
+            if (job_data['data'].get('title_ru') == title and 
+                job_data['data'].get('date') == date):
+                keys_to_remove.append(job_id)
+        
+        for key in keys_to_remove:
+            del jobs[key]
+            
+        with open(os.path.join(REPO_PATH, JOBS_FILE), "w", encoding="utf-8") as f:
+            json.dump(jobs, f, ensure_ascii=False, indent=2)
+
+    def restore_scheduled_jobs(self):
+        jobs = self.load_jobs_from_file()
+        restored_count = 0
+        now = datetime.datetime.now()
+        
+        for job_id, job_data in jobs.items():
+            try:
+                run_date = datetime.datetime.strptime(job_data['run_date'], "%d.%m.%Y %H:%M")
+                if run_date > now:
+                    self.scheduler.add_job(
+                        self.publish_news, 'date', 
+                        run_date=run_date, 
+                        args=[job_data['data']], 
+                        id=job_id
+                    )
+                    restored_count += 1
+                else:
+                    del jobs[job_id]
+            except Exception as e:
+                print(f"Ошибка восстановления задачи {job_id}: {e}")
+        
+        with open(os.path.join(REPO_PATH, JOBS_FILE), "w", encoding="utf-8") as f:
+            json.dump(jobs, f, ensure_ascii=False, indent=2)
+            
+        if restored_count > 0:
+            print(f"✅ Восстановлено {restored_count} запланированных новостей")
 
     def setup_hotkeys(self):
         self.root.bind("<Control-s>", lambda e: self.save_edited_news() if hasattr(self, 'current_edit_index') else None)
@@ -446,60 +579,35 @@ class FTNewsManager:
         self.root.bind("<Control-f>", lambda e: (self.notebook.select(self.tab_list), self.search_var.set(""), self.root.focus_set()) )
 
     def _run_git_cmd(self, args):
-        """Запускает git команду БЕЗ check=True, чтобы ловить ошибки вручную"""
         try:
-            result = subprocess.run(
-                ["git"] + args, 
-                cwd=REPO_PATH, 
-                capture_output=True, 
-                text=True
-                # ✅ УБРАЛИ check=True — теперь сами проверяем returncode
-            )
-            if result.returncode == 0:
-                return True, result.stdout
-            else:
-                return False, result.stderr + "\n" + result.stdout
-        except Exception as e:
-            return False, str(e)
+            result = subprocess.run(["git"] + args, cwd=REPO_PATH, capture_output=True, text=True, check=True)
+            return True, result.stdout
+        except subprocess.CalledProcessError as e:
+            return False, e.stderr
 
     def safe_git_commit_push(self, message):
-        try: 
-            current_branch = self.repo.active_branch.name
+        try: current_branch = self.repo.active_branch.name
         except TypeError:
             messagebox.showwarning("Внимание", "Detached HEAD detected. Возвращаю на main...")
-            self._run_git_cmd(["checkout", "main"])
-            current_branch = "main"
+            self._run_git_cmd(["checkout", "main"]); current_branch = "main"
 
-        # Добавляем ОБА файла
-        success, err = self._run_git_cmd(["add", NEWS_FILE, JOBS_FILE])
-        if not success: 
-            messagebox.showerror("Git Error", f"Не удалось добавить файлы:\n{err}")
-            return False
-
-        # Коммитим
-        success, out_err = self._run_git_cmd(["commit", "-m", message])
+        success, err = self._run_git_cmd(["add", NEWS_FILE])
+        if not success: messagebox.showerror("Git Error", f"Не удалось добавить файл:\n{err}"); return False
+        success, err = self._run_git_cmd(["commit", "-m", message])
         if not success:
-            combined = out_err.lower()
-            if "nothing to commit" in combined or "no changes added" in combined:
-                print("ℹ️ Нет изменений для коммита")
-                return True 
-            messagebox.showerror("Git Error", f"Ошибка коммита:\n{out_err}")
-            return False
+            if "nothing to commit" in err.lower(): return True 
+            messagebox.showerror("Git Error", f"Ошибка коммита:\n{err}"); return False
         
-        # Pull
         self._run_git_cmd(["pull", "--rebase", "-X", "ours"])
         
-        # Пуш
         if self.repo.remotes:
-            success, out_err = self._run_git_cmd(["push", "origin", current_branch])
+            success, err = self._run_git_cmd(["push", "origin", current_branch])
             if not success:
-                if "rejected" in out_err.lower():
+                if "rejected" in err.lower():
                     messagebox.showwarning("Требуется ручное вмешательство", 
-                        "Автоматическое слияние не удалось.\nВыполните в консоли:\ngit pull --rebase\ngit push")
+                        "Автоматическое слияние не удалось. Выполните в консоли:\ngit pull --rebase\ngit push")
                     return False
-                messagebox.showerror("Git Error", f"Ошибка пуша:\n{out_err}")
-                return False
-                
+                messagebox.showerror("Git Error", f"Ошибка пуша:\n{err}"); return False
         return True
 
     def setup_tray_icon(self):
