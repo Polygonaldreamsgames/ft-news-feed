@@ -1,11 +1,3 @@
-[NEWS]
-date=31.07.2026
-type=update
-important=false
-title_ru=FPS в 0.6!
-title_en=FPS in 0.6!
-desc_ru=Всем привет! В обновлении 0.6 нагрузка на GPU значительно упала! Теперь FPS стал лучше!
-desc_en=Hello everyone! Update 0.6 significantly reduced GPU load! FPS is now better!
 
 
 [NEWS]
@@ -46,4 +38,5 @@ desc_en=Hi all! Update 0.6 is almost finished. All that remains is to fix the AI
 # 4. Если important=true, новость вылезет в отдельном окне
 # 5. Не ставь пробелы перед знаками '='
 # ==========================================
+
 
