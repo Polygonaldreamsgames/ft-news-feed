@@ -6,7 +6,6 @@ title_ru=Добро пожаловать!
 title_en=Welcome to Update 0.6!
 desc_ru=Привет! Я приветствую тебя в этом прекрасном обновлении! Тебя ждёт ОГРОМНОЕ изменение атмосферы, графики, физики, новые механики, новый ИИ животных, новая локация, и многое другое! Приятной игры!
 desc_en=Hello! Welcome to this wonderful update! A HUGE overhaul of the atmosphere, graphics, physics, new mechanics, new animal AI, a new location, and much more awaits you! Enjoy the game!
-
 [NEWS]
 date=17.08.2026
 type=update
