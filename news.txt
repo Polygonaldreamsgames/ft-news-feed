@@ -6,6 +6,7 @@ title_ru=Добро пожаловать!
 title_en=Welcome to Update 0.6!
 desc_ru=Привет! Я приветствую тебя в этом прекрасном обновлении! Тебя ждёт ОГРОМНОЕ изменение атмосферы, графики, физики, новые механики, новый ИИ животных, новая локация, и многое другое! Приятной игры!
 desc_en=Hello! Welcome to this wonderful update! A HUGE overhaul of the atmosphere, graphics, physics, new mechanics, new animal AI, a new location, and much more awaits you! Enjoy the game!
+
 [NEWS]
 date=17.08.2026
 type=update
@@ -14,6 +15,15 @@ title_ru=Обновление 0.6.1!
 title_en=Update 0.6.1!
 desc_ru=Обновление 0.6.1 - баг фикс, уже доступно для скачивания! Исправлены баги с ИИ, проход ИИ сквозь камни, а также улучшен подбор предметов из под воды!
 desc_en=Update 0.6.1 - bug fix, now available for download! AI bugs and AI movement through rocks have been fixed, and underwater item pickup has been improved!
+
+[NEWS]
+date=22.08.2026
+type=update
+important=false
+title_ru=Анонс!
+title_en=Announcement!
+desc_ru=Обновление 0.6.2 - выйдет совсем скоро. Вас ждёт: улучшенный баланс температуры мира и замерзания, фикс багов ИИ, система слуха ИИ, намокание в воде, сортировка вещей в инвентаре по категориям И АНДРОИД ВЕРСИЯ ИГРЫ!
+desc_en=Update 0.6.2 is coming soon. It features improved world temperature and freezing balance, AI bug fixes, an AI hearing system, water immersion, inventory sorting by category, and an Android version of the game!
 
 
 
