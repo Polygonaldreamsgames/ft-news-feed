@@ -25,7 +25,14 @@ title_en=Announcement!
 desc_ru=Обновление 0.6.2 - выйдет совсем скоро. Вас ждёт: улучшенный баланс температуры мира и замерзания, фикс багов ИИ, система слуха ИИ, намокание в воде, сортировка вещей в инвентаре по категориям И АНДРОИД ВЕРСИЯ ИГРЫ!
 desc_en=Update 0.6.2 is coming soon. It features improved world temperature and freezing balance, AI bug fixes, an AI hearing system, water immersion, inventory sorting by category, and an Android version of the game!
 
-
+[NEWS]
+date=28.09.2026
+type=update
+important=false
+title_ru=Обновление 0.6.2 
+title_en=Update 0.6.2
+desc_ru=Новые новости об обновлении 0.6.2! Основные глобальные новые изменения: новая система травы, прочность предметов, начало появления лора в игре, а также улучшенный баланс температуры мира и замерзания, фикс багов ИИ, система слуха ИИ, намокание в воде, сортировка вещей в инвентаре по категориям И АНДРОИД ВЕРСИЯ ИГРЫ!
+desc_en=Latest news on update 0.6.2! Key major changes include: a new grass system, item durability, the introduction of in-game lore, improved world temperature and freezing mechanics, AI bug fixes, an AI hearing system, getting wet in water, inventory sorting by category, AND the Android version of the game!
 
 # --- Скопируй блок ниже для новой новости ---
 
