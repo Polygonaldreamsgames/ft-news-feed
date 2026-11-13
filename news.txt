@@ -1,22 +1,4 @@
 [NEWS]
-date=14.08.2026
-type=update
-important=true
-title_ru=Добро пожаловать!
-title_en=Welcome to Update 0.6!
-desc_ru=Привет! Я приветствую тебя в этом прекрасном обновлении! Тебя ждёт ОГРОМНОЕ изменение атмосферы, графики, физики, новые механики, новый ИИ животных, новая локация, и многое другое! Приятной игры!
-desc_en=Hello! Welcome to this wonderful update! A HUGE overhaul of the atmosphere, graphics, physics, new mechanics, new animal AI, a new location, and much more awaits you! Enjoy the game!
-
-[NEWS]
-date=17.08.2026
-type=update
-important=false
-title_ru=Обновление 0.6.1!
-title_en=Update 0.6.1!
-desc_ru=Обновление 0.6.1 - баг фикс, уже доступно для скачивания! Исправлены баги с ИИ, проход ИИ сквозь камни, а также улучшен подбор предметов из под воды!
-desc_en=Update 0.6.1 - bug fix, now available for download! AI bugs and AI movement through rocks have been fixed, and underwater item pickup has been improved!
-
-[NEWS]
 date=22.08.2026
 type=update
 important=false
@@ -33,6 +15,15 @@ title_ru=Обновление 0.6.2
 title_en=Update 0.6.2
 desc_ru=Новые новости об обновлении 0.6.2! Основные глобальные новые изменения: новая система травы, прочность предметов, начало появления лора в игре, а также улучшенный баланс температуры мира и замерзания, фикс багов ИИ, система слуха ИИ, намокание в воде, сортировка вещей в инвентаре по категориям И АНДРОИД ВЕРСИЯ ИГРЫ!
 desc_en=Latest news on update 0.6.2! Key major changes include: a new grass system, item durability, the introduction of in-game lore, improved world temperature and freezing mechanics, AI bug fixes, an AI hearing system, getting wet in water, inventory sorting by category, AND the Android version of the game!
+
+[NEWS]
+date=13.11.2026
+type=update
+important=true
+title_ru=Планы на 0.7
+title_en=Plans for 0.7
+desc_ru=Обновление 0.6.2 выйдет уже в ближайшие дни, огромные изменения, фиксы, оптимизация, переработка затопленных хребтов. В следующем обновлени 0.7 я полностью переработаю систему здоровья, новая локация, улучшение лора. Игра станет намного сложнее, и жестче. Всем удачной игры! Новости по разработке будут появляться здесь!
+desc_en=Update 0.6.2 will be released in the coming days, featuring major changes, fixes, optimizations, and a rework of the Flooded Ridges. In the subsequent update, 0.7, I will completely overhaul the health system, add a new location, and expand the lore. The game will become significantly more challenging and unforgiving. Happy gaming, everyone! Development updates will be posted here!
 
 # --- Скопируй блок ниже для новой новости ---
 
