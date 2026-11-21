@@ -22,7 +22,7 @@ type=update
 important=true
 title_ru=Планы на 0.7
 title_en=Plans for 0.7
-desc_ru=Обновление 0.6.2 выйдет уже в ближайшие дни, огромные изменения, фиксы, оптимизация, переработка затопленных хребтов. В следующем обновлени 0.7 я полностью переработаю систему здоровья, новая локация, улучшение лора. Игра станет намного сложнее, и жестче. Всем удачной игры! Новости по разработке будут появляться здесь!
+desc_ru=Обновление 0.6.2 выйдет уже в ближайшие дни, огромные изменения, фиксы, оптимизация, переработка затопленных хребтов. В следующем обновлении 0.7 я полностью переработаю систему здоровья, новая локация, улучшение лора. Игра станет намного сложнее, и жестче. Всем удачной игры! Новости по разработке будут появляться здесь!
 desc_en=Update 0.6.2 will be released in the coming days, featuring major changes, fixes, optimizations, and a rework of the Flooded Ridges. In the subsequent update, 0.7, I will completely overhaul the health system, add a new location, and expand the lore. The game will become significantly more challenging and unforgiving. Happy gaming, everyone! Development updates will be posted here!
 
 # --- Скопируй блок ниже для новой новости ---
